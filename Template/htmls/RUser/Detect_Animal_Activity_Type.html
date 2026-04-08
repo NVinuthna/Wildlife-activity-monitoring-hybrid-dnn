@@ -1,0 +1,170 @@
+{% extends 'RUser/Header.html' %}
+{% block userblock %}
+
+<link href="https://fonts.googleapis.com/css?family=Righteous|Fredoka+One" rel="stylesheet">
+
+<style>
+    body {
+        background-color: #f4f6f9;
+    }
+
+    .container-fluid {
+        padding: 40px;
+    }
+
+    .container {
+        background-color: #ffffff;
+        padding: 40px;
+        border-radius: 10px;
+        box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    }
+
+    .title-text {
+        font-family: 'Fredoka One', cursive;
+        color: #2c3e50;
+        font-size: 24px;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    /* Table Styling */
+    .pro-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-family: 'Righteous', cursive;
+        margin-top: 20px;
+    }
+
+    .pro-table th {
+        background-color: #2c3e50;
+        color: #ffffff;
+        padding: 14px;
+        font-size: 18px;
+        text-align: center;
+    }
+
+    .pro-table td {
+        border: 1px solid #dcdcdc;
+        padding: 10px;
+    }
+
+    .pro-table td.label {
+        background-color: #ecf0f1;
+        font-weight: bold;
+        color: #2c3e50;
+        width: 25%;
+    }
+
+    .pro-table td.input {
+        background-color: #ffffff;
+        width: 25%;
+    }
+
+    .pro-table input[type="text"] {
+        width: 95%;
+        padding: 6px;
+        border: 1px solid #bdc3c7;
+        border-radius: 4px;
+    }
+
+    .pro-table input[type="submit"] {
+        background-color: #93db34;
+        color: #ffffff;
+        padding: 10px 30px;
+        border: none;
+        border-radius: 6px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .pro-table input[type="submit"]:hover {
+        background-color: #b96029;
+    }
+
+    .result-box {
+        margin-top: 30px;
+        text-align: center;
+        font-size: 22px;
+        font-family: fantasy;
+        color: #e74c3c;
+    }
+</style>
+
+<div class="container-fluid">
+    <div class="container">
+        <div class="title-text">
+            Prediction of Animal Activity Detection
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+            <table class="pro-table">
+                <tr>
+                    <th colspan="4">Dataset Details</th>
+                </tr>
+
+                <tr>
+                    <td class="label">Fid</td>
+                    <td class="input"><input type="text" name="Fid"></td>
+                    <td class="label">Forest Name</td>
+                    <td class="input"><input type="text" name="Forest_Name"></td>
+                </tr>
+
+                <tr>
+                    <td class="label">Location</td>
+                    <td class="input"><input type="text" name="Location"></td>
+                    <td class="label">Animal Name</td>
+                    <td class="input"><input type="text" name="Animal"></td>
+                </tr>
+
+                <tr>
+                    <td class="label">Height (cm)</td>
+                    <td class="input"><input type="text" name="Height_cm"></td>
+                    <td class="label">Weight (kg)</td>
+                    <td class="input"><input type="text" name="Weight_kg"></td>
+                </tr>
+
+                <tr>
+                    <td class="label">Color</td>
+                    <td class="input"><input type="text" name="Color"></td>
+                    <td class="label">Diet</td>
+                    <td class="input"><input type="text" name="Diet"></td>
+                </tr> 
+                <tr>
+                    <td class="label">Enter Habitat</td>
+                    <td class="input"><input type="text" name="Habitat"></td>
+                    <td class="label">Enter Predators</td>
+                    <td class="input"><input type="text" name="Predators"></td>
+                </tr> 
+
+                <tr>
+                    <td class="label">Countries Found</td>
+                    <td class="input"><input type="text" name="Countries_Found"></td>
+                    <td class="label">Conservation Status</td>
+                    <td class="input"><input type="text" name="Conservation_Status"></td>
+                </tr>
+
+                <tr>
+                    <td class="label">Family</td>
+                    <td class="input"><input type="text" name="Family"></td>
+                    <td class="label">Social Structure</td>
+                    <td class="input"><input type="text" name="Social_Structure"></td>
+                </tr>
+
+                <tr>
+                    <td class="label">Alert Message Date</td>
+                    <td class="input"><input type="text" name="Alert_Message_Date"></td>
+                    <td colspan="2" style="text-align:center;">
+                        <input type="submit" value="Predict">
+                    </td>
+                </tr>
+            </table>
+        </form>
+
+        <div class="result-box">
+            Prediction Result : <strong>{{ objs }}</strong>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
