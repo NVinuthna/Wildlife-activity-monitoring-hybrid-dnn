@@ -1,3 +1,9 @@
 django
+<<<<<<< HEAD
 gunicorn 
 pymysql
+=======
+gunicorn
+pymysql
+cryptography
+>>>>>>> 0bfd76da5deca36653485f23684f317c4c24d113
