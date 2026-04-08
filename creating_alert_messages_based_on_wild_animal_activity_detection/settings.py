@@ -1,8 +1,8 @@
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-from pathlib import path
-BASE_DIR = path(__file__).resolve().parent.parent
+from pathlib import Path
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # Quick-start development settings - unsuitable for production
