@@ -1,2 +1,4 @@
 django
-gunicorn 
+gunicorn
+pymysql
+cryptography
