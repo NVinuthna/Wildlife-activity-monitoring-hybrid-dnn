@@ -1,0 +1,14 @@
+{
+  "builds": [
+    {
+      "src": "creating_alert_messages_based_on_wild_animal_activity_detection/wsgi.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "creating_alert_messages_based_on_wild_animal_activity_detection/wsgi.py"
+    }
+  ]
+}
