@@ -13,7 +13,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.conf.urls import url
+from django.urls import path, re_path
 from django.contrib import admin
 from Remote_User import views as remoteuser
 from creating_alert_messages_based_on_wild_animal_activity_detection import settings
@@ -22,20 +22,20 @@ from django.conf.urls.static import static
 
 
 urlpatterns = [
-    url('admin/', admin.site.urls),
-    url(r'^$', remoteuser.index, name="index"),
-    url(r'^login/$', remoteuser.login, name="login"),
-    url(r'^Register1/$', remoteuser.Register1, name="Register1"),
-    url(r'^Detect_Animal_Activity_Type/$', remoteuser.Detect_Animal_Activity_Type, name="Detect_Animal_Activity_Type"),
-    url(r'^ViewYourProfile/$', remoteuser.ViewYourProfile, name="ViewYourProfile"),
-    url(r'^serviceproviderlogin/$',serviceprovider.serviceproviderlogin, name="serviceproviderlogin"),
-    url(r'View_Remote_Users/$',serviceprovider.View_Remote_Users,name="View_Remote_Users"),
-    url(r'^charts/(?P<chart_type>\w+)', serviceprovider.charts,name="charts"),
-    url(r'^charts1/(?P<chart_type>\w+)', serviceprovider.charts1, name="charts1"),
-    url(r'^likeschart/(?P<like_chart>\w+)', serviceprovider.likeschart, name="likeschart"),
-    url(r'^View_Predicted_Animal_Activity_Detection_Type_Ratio/$', serviceprovider.View_Predicted_Animal_Activity_Detection_Type_Ratio, name="View_Predicted_Animal_Activity_Detection_Type_Ratio"),
-    url(r'^train_model/$', serviceprovider.train_model, name="train_model"),
-    url(r'^View_Predicted_Animal_Activity_Detection/$', serviceprovider.View_Predicted_Animal_Activity_Detection, name="View_Predicted_Animal_Activity_Detection"),
-    url(r'^Download_Predicted_DataSets/$', serviceprovider.Download_Predicted_DataSets, name="Download_Predicted_DataSets"),
+    path('admin/', admin.site.urls),
+    re_path(r'^$', remoteuser.index, name="index"),
+    re_path(r'^login/$', remoteuser.login, name="login"),
+    re_path(r'^Register1/$', remoteuser.Register1, name="Register1"),
+    re_path(r'^Detect_Animal_Activity_Type/$', remoteuser.Detect_Animal_Activity_Type, name="Detect_Animal_Activity_Type"),
+    re_path(r'^ViewYourProfile/$', remoteuser.ViewYourProfile, name="ViewYourProfile"),
+    re_path(r'^serviceproviderlogin/$',serviceprovider.serviceproviderlogin, name="serviceproviderlogin"),
+    re_path(r'View_Remote_Users/$',serviceprovider.View_Remote_Users,name="View_Remote_Users"),
+    re_path(r'^charts/(?P<chart_type>\w+)', serviceprovider.charts,name="charts"),
+    re_path(r'^charts1/(?P<chart_type>\w+)', serviceprovider.charts1, name="charts1"),
+    re_path(r'^likeschart/(?P<like_chart>\w+)', serviceprovider.likeschart, name="likeschart"),
+    re_path(r'^View_Predicted_Animal_Activity_Detection_Type_Ratio/$', serviceprovider.View_Predicted_Animal_Activity_Detection_Type_Ratio, name="View_Predicted_Animal_Activity_Detection_Type_Ratio"),
+    re_path(r'^train_model/$', serviceprovider.train_model, name="train_model"),
+    re_path(r'^View_Predicted_Animal_Activity_Detection/$', serviceprovider.View_Predicted_Animal_Activity_Detection, name="View_Predicted_Animal_Activity_Detection"),
+    re_path(r'^Download_Predicted_DataSets/$', serviceprovider.Download_Predicted_DataSets, name="Download_Predicted_DataSets"),
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
