@@ -1,6 +1,5 @@
 streamlit
 pandas
 scikit-learn
-opencv-python-headless
 numpy
 
