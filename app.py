@@ -9,12 +9,13 @@ if 'page' not in st.session_state:
 # --- PAGE 1: LOGIN ---
 if st.session_state.page == 'login':
     st.title("🔐 System Login")
-    st.text_input("Username")
-    st.text_input("Password", type="password")
+    u_name = st.text_input("Username")
+    u_pass = st.text_input("Password", type="password")
     
     col1, col2 = st.columns(2)
     with col1:
         if st.button("Login"):
+            # Simple bypass for local testing; connect to DB if needed
             st.session_state.page = 'monitoring'
             st.rerun()
     with col2:
@@ -38,54 +39,63 @@ elif st.session_state.page == 'register':
         st.session_state.page = 'login'
         st.rerun()
 
-# --- PAGE 3: MONITORING (FIXED SECTION) ---
+# --- PAGE 3: MONITORING (THE FIX) ---
 elif st.session_state.page == 'monitoring':
     st.title("🐾 Wildlife Monitoring System")
     
     try:
-        # Load Dataset
+        # Load your specific CSV
         df = pd.read_csv("Datasets.csv")
-        df.columns = df.columns.str.strip()
+        df.columns = df.columns.str.strip() # Clean column names
         
-        # Selection Form
         with st.form("monitoring_form"):
             u_forest = st.selectbox("Select Forest", df['Forest_Name'].unique())
             u_animal = st.selectbox("Select Animal", df['Animal'].unique())
             submitted = st.form_submit_button("Start Monitoring")
 
-        # OUTPUT SECTION: This only runs when the button is clicked
         if submitted:
+            # Get the exact row from your Datasets.csv
             row = df[(df['Forest_Name'] == u_forest) & (df['Animal'] == u_animal)].iloc[0]
             
-            st.divider() # Visual line separator
+            st.divider()
             
-            # --- CREATE THE COLUMNS FOR CLEAR OUTPUT ---
-            col1, col2 = st.columns([2, 1]) # col1 is wider for the visual
+            # --- STEP 1: CREATE TWO COLUMNS FOR OUTPUT ---
+            col1, col2 = st.columns([1, 1]) 
             
             with col1:
-                st.subheader("🔴 Live Monitoring Feed")
-                # Look for an image in your 'images' folder matching the animal name
+                st.subheader("🖼️ Visual Identification")
+                # Look for image in your GitHub images folder
                 img_path = f"images/{u_animal}.jpg"
-                
                 if os.path.exists(img_path):
-                    st.image(img_path, use_container_width=True)
+                    st.image(img_path, caption=f"Detected: {u_animal}", use_container_width=True)
                 else:
-                    # Generic placeholder if image is missing
-                    st.warning(f"No visual feed found for {u_animal}. Check your images folder.")
-                    st.image("https://via.placeholder.com/400x300?text=No+Visual+Signal", use_container_width=True)
+                    # Placeholder if image is not uploaded to GitHub yet
+                    st.warning(f"No image found for {u_animal} in /images folder.")
+                    st.image("https://via.placeholder.com/400x300?text=Animal+Detection+Active", use_container_width=True)
 
             with col2:
-                st.subheader("📊 Analysis Data")
-                st.metric(label="System Status", value=f"Code {row['Label']}")
-                st.write(f"**Target:** {u_animal}")
-                st.write(f"**Location:** {u_forest}")
+                st.subheader("📊 Detection Analytics")
                 
-                # Adding a small chart to fill the "other columns" requirement
-                st.write("Detection Confidence")
-                st.progress(85) # Example static value
-                st.bar_chart([1, 3, 2, 5])
+                # Map the Label numbers to text based on your views.py logic
+                status_map = {0: "Safe (Forest Crossing)", 1: "Warning (Village Proximity)", 2: "Alert (Trespassing)"}
+                status_text = status_map.get(int(row['Label']), "Detection Active")
+                
+                # Show the primary alert status
+                st.error(f"**Alert Status:** {status_text}")
+                st.info(f"**System Message:** {row['Alert_Message']}")
+                
+                # Display all the "other columns" from your CSV
+                st.write("---")
+                st.write(f"**Physical Height:** {row['Height_cm']} cm")
+                st.write(f"**Physical Weight:** {row['Weight_kg']} kg")
+                st.write(f"**Habitat:** {row['Habitat']}")
+                st.write(f"**Conservation:** {row['Conservation_Status']}")
+                st.write(f"**Social Structure:** {row['Social_Structure']}")
+                st.write(f"**Alert Date:** {row['Alert_Message_Date']}")
 
     except Exception as e:
-        st.error(f"Error loading monitoring data: {e}")
+        st.error(f"Configuration Error: {e}")
 
-    st.sidebar.button("Logout", on_click=lambda: st.session_state.update({"page": "login"}))
+    if st.sidebar.button("Logout"):
+        st.session_state.page = 'login'
+        st.rerun()
