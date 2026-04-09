@@ -4,28 +4,29 @@ import pandas as pd
 st.title("Wildlife Activity Monitoring System")
 
 try:
-    # 1. Load data
+    # 1. Load the data
     df = pd.read_csv("Datasets.csv")
     
-    # FIX for KeyError: Remove hidden spaces from column names
+    # CRITICAL FIX: This removes any hidden spaces at the start/end of column names
     df.columns = df.columns.str.strip()
     
-    # 2. Setup the Form
-    with st.form("my_form"):
+    # 2. Build the Form
+    with st.form("monitoring_form"):
         st.subheader("Select Parameters")
         
-        # This will now work because we 'stripped' the column names above
+        # We use the stripped column names here
         selected_forest = st.selectbox("Select Forest Name", df['Forest Name'].unique())
         selected_loc = st.selectbox("Select Location", df['Location'].unique())
         
-        # FIX for Missing Submit Button:
+        # MANDATORY FIX: This button MUST be inside the 'with st.form' block
         submitted = st.form_submit_button("Run Monitoring")
         
         if submitted:
-            st.success(f"Monitoring active for {selected_forest}")
-            st.info("Status: Normal Activity Detected")
+            st.success(f"Monitoring active for {selected_forest}!")
+            st.info("System Status: Normal Activity")
 
 except FileNotFoundError:
-    st.error("Datasets.csv not found in the root folder!")
+    st.error("Could not find 'Datasets.csv'. Please ensure it is in your GitHub main folder.")
 except KeyError as e:
-    st.error(f"Column Name Error: The app couldn't find the column {e}. Check your CSV headers!")
+    # This helps you see exactly what the column name is if it still fails
+    st.error(f"The app couldn't find the column: {e}. Available columns are: {list(df.columns)}")
