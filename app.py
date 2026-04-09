@@ -1,58 +1,93 @@
 import streamlit as st
 import pandas as pd
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.neural_network import MLPClassifier
 
-# Set Page Title
-st.set_page_config(page_title="Wildlife Monitoring System", layout="wide")
-st.title("🐾 Wildlife Activity Monitoring System")
+# 1. Page Configuration
+st.set_page_config(page_title="Wildlife Monitoring System", layout="centered")
 
-try:
-    # 1. Load the Dataset
-    df = pd.read_csv("Datasets.csv")
+# Initialize Session State for Navigation and User Data
+if 'page' not in st.session_state:
+    st.session_state.page = 'Login'
+if 'users' not in st.session_state:
+    st.session_state.users = {"Admin": "Admin123"} # Default User
+
+# 2. Styling (To match your red/black/white theme)
+st.markdown("""
+    <style>
+    .main { background-color: #000000; }
+    .stButton>button { width: 100%; border-radius: 5px; background-color: #FF0000; color: white; }
+    h1 { color: #FF0000; font-family: 'Fredoka One'; text-align: center; }
+    .login-box { background-color: #ffffff; padding: 30px; border-radius: 10px; border: 2px solid #FF0000; }
+    </style>
+    """, unsafe_allow_html=True)
+
+# --- PAGE: LOGIN ---
+if st.session_state.page == 'Login':
+    st.markdown("<h1>USER LOGIN</h1>", unsafe_allow_html=True)
     
-    # 2. Input Section (Sidebar or Form)
-    with st.form("monitoring_form"):
-        st.subheader("Select Parameters for Analysis")
+    with st.container():
+        st.markdown('<div class="login-box">', unsafe_allow_html=True)
+        user = st.text_input("Username")
+        pw = st.text_input("Password", type="password")
         
         col1, col2 = st.columns(2)
         with col1:
-            selected_forest = st.selectbox("Select Forest Name", df['Forest_Name'].unique())
+            if st.button("LOGIN"):
+                if user in st.session_state.users and st.session_state.users[user] == pw:
+                    st.success("Login Successful!")
+                    st.session_state.page = 'Detect'
+                    st.rerun()
+                else:
+                    st.error("Invalid Username or Password")
         with col2:
-            # Filters the location based on the selected forest
-            loc_options = df[df['Forest_Name'] == selected_forest]['Location'].unique()
-            selected_loc = st.selectbox("Select Location", loc_options)
-        
-        # Corrected: Submit button MUST be inside the 'with' block
-        submitted = st.form_submit_button("Run Monitoring Detection")
+            if st.button("GO TO REGISTER"):
+                st.session_state.page = 'Register'
+                st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
 
-    # 3. Execution and Data Extraction
-    if submitted:
-        # Filter the dataset to find the specific row
-        row = df[(df['Forest_Name'] == selected_forest) & (df['Location'] == selected_loc)].iloc[0]
+# --- PAGE: REGISTER ---
+elif st.session_state.page == 'Register':
+    st.markdown("<h1>USER REGISTRATION</h1>", unsafe_allow_html=True)
+    
+    with st.form("reg_form"):
+        new_user = st.text_input("Choose Username")
+        new_pw = st.text_input("Choose Password", type="password")
+        email = st.text_input("Email ID")
+        address = st.text_area("Address")
         
-        st.success(f"### Monitoring Results for {selected_forest}")
-        
-        # Displaying all extracted columns in an organized layout
-        tab1, tab2, tab3 = st.tabs(["Animal Details", "Habitat & Biology", "Alert Status"])
-        
-        with tab1:
-            st.write(f"*Target Animal:* {row['Animal']}")
-            st.write(f"*Family:* {row['Family']}")
-            st.metric("Height (cm)", row['Height_cm'])
-            st.metric("Weight (kg)", row['Weight_kg'])
-            
-        with tab2:
-            st.write(f"*Habitat:* {row['Habitat']}")
-            st.write(f"*Diet:* {row['Diet']}")
-            st.write(f"*Social Structure:* {row['Social_Structure']}")
-            st.write(f"*Predators:* {row['Predators']}")
-            
-        with tab3:
-            # Highlight the Alert and Label
-            st.error(f"*Alert Message:* {row['Alert_Message']}")
-            st.warning(f"*System Label:* {row['Label']}")
-            st.info(f"*Date recorded:* {row['Alert_Message_Date']}")
+        if st.form_submit_button("CREATE ACCOUNT"):
+            if new_user and new_pw:
+                st.session_state.users[new_user] = new_pw
+                st.success("Account Created! You can now Login.")
+                if st.button("Back to Login"):
+                    st.session_state.page = 'Login'
+                    st.rerun()
+            else:
+                st.error("Please fill in all fields.")
+    
+    if st.button("Back to Login"):
+        st.session_state.page = 'Login'
+        st.rerun()
 
-except FileNotFoundError:
-    st.error("Error: 'Datasets.csv' not found. Ensure it is in the same folder as app.py on GitHub.")
-except Exception as e:
-    st.error(f"Execution Error: {e}")
+# --- PAGE: PREDICTION (The actual project execution) ---
+elif st.session_state.page == 'Detect':
+    st.sidebar.button("Logout", on_click=lambda: setattr(st.session_state, 'page', 'Login'))
+    st.markdown("<h1>🐾 WILDLIFE DETECTION</h1>", unsafe_allow_html=True)
+    
+    # Prediction Logic
+    try:
+        df = pd.read_csv('Datasets.csv')
+        cv = CountVectorizer()
+        X = cv.fit_transform(df['Fid'].apply(str))
+        y = df['Label']
+        model = MLPClassifier(max_iter=500).fit(X, y)
+
+        with st.form("predict_form"):
+            fid = st.text_input("Enter Fid for Analysis")
+            if st.form_submit_button("PREDICT ACTIVITY"):
+                pred = model.predict(cv.transform([fid]))[0]
+                msgs = {0: "Crossing Forest Lines", 1: "Hindrance to Villagers", 2: "Trespassing"}
+                st.info(f"RESULT: {msgs.get(pred, 'Unknown').upper()}")
+    except:
+        st.error("Datasets.csv not found!")
