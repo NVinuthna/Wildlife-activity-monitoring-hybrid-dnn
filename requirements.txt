@@ -3,3 +3,5 @@ gunicorn
 pymysql
 pandas
 scikit-learn
+xlwt
+whitenoise
