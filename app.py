@@ -25,6 +25,7 @@ try:
     # 3. Navigation Buttons (MUST be outside the form to avoid the API error)
     if st.button("Back to Login"):
         st.write("Redirecting to login...")
+        st.rerun()
         # Add your login redirection logic here
 
 except Exception as e:
