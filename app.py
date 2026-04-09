@@ -1,32 +1,60 @@
 import streamlit as st
 import pandas as pd
 
-st.title("🐾 Wildlife Activity Monitoring System")
+# 1. Initialize Page State (Must be at the top)
+if 'page' not in st.session_state:
+    st.session_state.page = 'monitoring'
 
-# 1. Load the Dataset
-try:
-    df = pd.read_csv("Datasets.csv")
-    df.columns = df.columns.str.strip() # Cleans any hidden spaces in CSV headers
+# --- PAGE 1: MONITORING SECTION ---
+if st.session_state.page == 'monitoring':
+    st.title("🐾 Wildlife Activity Monitoring System")
 
-    # 2. Main Monitoring Form
-    with st.form("monitoring_form"):
-        st.subheader("Analysis Parameters")
-        u_forest = st.selectbox("Select Forest", df['Forest_Name'].unique())
-        u_animal = st.selectbox("Select Animal", df['Animal'].unique())
-        
-        # CORRECTED: Use form_submit_button inside the form
-        submitted = st.form_submit_button("Start Monitoring")
-        
-        if submitted:
-            row = df[(df['Forest_Name'] == u_forest) & (df['Animal'] == u_animal)].iloc[0]
-            st.success(f"Results: {row['Label']}")
-            st.warning(f"Alert: {row['Alert_Message']}")
+    try:
+        # Load the Dataset
+        df = pd.read_csv("Datasets.csv")
+        # Remove hidden spaces from column names to fix KeyError
+        df.columns = df.columns.str.strip() 
 
-    # 3. Navigation Buttons (MUST be outside the form to avoid the API error)
+        # Main Monitoring Form
+        with st.form("monitoring_form"):
+            st.subheader("Analysis Parameters")
+            
+            # Use columns that exist in your Datasets.csv
+            u_forest = st.selectbox("Select Forest", df['Forest_Name'].unique())
+            u_animal = st.selectbox("Select Animal", df['Animal'].unique())
+            
+            # MANDATORY: Submit button must be INSIDE the form block
+            submitted = st.form_submit_button("Start Monitoring")
+            
+            if submitted:
+                # Filter data and show results
+                match = df[(df['Forest_Name'] == u_forest) & (df['Animal'] == u_animal)]
+                if not match.empty:
+                    row = match.iloc[0]
+                    st.success(f"Results: {row['Label']}")
+                    st.warning(f"Alert: {row['Alert_Message']}")
+                else:
+                    st.error("No data found for this selection.")
+
+    except FileNotFoundError:
+        st.error("Datasets.csv not found. Please upload it to your GitHub.")
+    except Exception as e:
+        st.error(f"Execution Error: {e}")
+
+    # Navigation Button (MUST be outside the form block)
+    st.write("---")
     if st.button("Back to Login"):
-        st.write("Redirecting to login...")
+        st.session_state.page = 'login'
         st.rerun()
-        # Add your login redirection logic here
 
-except Exception as e:
-    st.error(f"Execution Error: {e}")
+# --- PAGE 2: LOGIN SECTION ---
+elif st.session_state.page == 'login':
+    st.title("🔐 System Login")
+    st.info("You have successfully redirected to the login page.")
+    
+    st.text_input("Username")
+    st.text_input("Password", type="password")
+    
+    if st.button("Login to Monitoring"):
+        st.session_state.page = 'monitoring'
+        st.rerun()
