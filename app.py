@@ -1,93 +1,31 @@
 import streamlit as st
 import pandas as pd
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.neural_network import MLPClassifier
 
-# 1. Page Configuration
-st.set_page_config(page_title="Wildlife Monitoring System", layout="centered")
+st.title("🐾 Wildlife Activity Monitoring System")
 
-# Initialize Session State for Navigation and User Data
-if 'page' not in st.session_state:
-    st.session_state.page = 'Login'
-if 'users' not in st.session_state:
-    st.session_state.users = {"Admin": "Admin123"} # Default User
+# 1. Load the Dataset
+try:
+    df = pd.read_csv("Datasets.csv")
+    df.columns = df.columns.str.strip() # Cleans any hidden spaces in CSV headers
 
-# 2. Styling (To match your red/black/white theme)
-st.markdown("""
-    <style>
-    .main { background-color: #000000; }
-    .stButton>button { width: 100%; border-radius: 5px; background-color: #FF0000; color: white; }
-    h1 { color: #FF0000; font-family: 'Fredoka One'; text-align: center; }
-    .login-box { background-color: #ffffff; padding: 30px; border-radius: 10px; border: 2px solid #FF0000; }
-    </style>
-    """, unsafe_allow_html=True)
-
-# --- PAGE: LOGIN ---
-if st.session_state.page == 'Login':
-    st.markdown("<h1>USER LOGIN</h1>", unsafe_allow_html=True)
-    
-    with st.container():
-        st.markdown('<div class="login-box">', unsafe_allow_html=True)
-        user = st.text_input("Username")
-        pw = st.text_input("Password", type="password")
+    # 2. Main Monitoring Form
+    with st.form("monitoring_form"):
+        st.subheader("Analysis Parameters")
+        u_forest = st.selectbox("Select Forest", df['Forest_Name'].unique())
+        u_animal = st.selectbox("Select Animal", df['Animal'].unique())
         
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.button("LOGIN"):
-                if user in st.session_state.users and st.session_state.users[user] == pw:
-                    st.success("Login Successful!")
-                    st.session_state.page = 'Detect'
-                    st.rerun()
-                else:
-                    st.error("Invalid Username or Password")
-        with col2:
-            if st.button("GO TO REGISTER"):
-                st.session_state.page = 'Register'
-                st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-
-# --- PAGE: REGISTER ---
-elif st.session_state.page == 'Register':
-    st.markdown("<h1>USER REGISTRATION</h1>", unsafe_allow_html=True)
-    
-    with st.form("reg_form"):
-        new_user = st.text_input("Choose Username")
-        new_pw = st.text_input("Choose Password", type="password")
-        email = st.text_input("Email ID")
-        address = st.text_area("Address")
+        # CORRECTED: Use form_submit_button inside the form
+        submitted = st.form_submit_button("Start Monitoring")
         
-        if st.form_submit_button("CREATE ACCOUNT"):
-            if new_user and new_pw:
-                st.session_state.users[new_user] = new_pw
-                st.success("Account Created! You can now Login.")
-                if st.button("Back to Login"):
-                    st.session_state.page = 'Login'
-                    st.rerun()
-            else:
-                st.error("Please fill in all fields.")
-    
+        if submitted:
+            row = df[(df['Forest_Name'] == u_forest) & (df['Animal'] == u_animal)].iloc[0]
+            st.success(f"Results: {row['Label']}")
+            st.warning(f"Alert: {row['Alert_Message']}")
+
+    # 3. Navigation Buttons (MUST be outside the form to avoid the API error)
     if st.button("Back to Login"):
-        st.session_state.page = 'Login'
-        st.rerun()
+        st.write("Redirecting to login...")
+        # Add your login redirection logic here
 
-# --- PAGE: PREDICTION (The actual project execution) ---
-elif st.session_state.page == 'Detect':
-    st.sidebar.button("Logout", on_click=lambda: setattr(st.session_state, 'page', 'Login'))
-    st.markdown("<h1>🐾 WILDLIFE DETECTION</h1>", unsafe_allow_html=True)
-    
-    # Prediction Logic
-    try:
-        df = pd.read_csv('Datasets.csv')
-        cv = CountVectorizer()
-        X = cv.fit_transform(df['Fid'].apply(str))
-        y = df['Label']
-        model = MLPClassifier(max_iter=500).fit(X, y)
-
-        with st.form("predict_form"):
-            fid = st.text_input("Enter Fid for Analysis")
-            if st.form_submit_button("PREDICT ACTIVITY"):
-                pred = model.predict(cv.transform([fid]))[0]
-                msgs = {0: "Crossing Forest Lines", 1: "Hindrance to Villagers", 2: "Trespassing"}
-                st.info(f"RESULT: {msgs.get(pred, 'Unknown').upper()}")
-    except:
-        st.error("Datasets.csv not found!")
+except Exception as e:
+    st.error(f"Execution Error: {e}")
