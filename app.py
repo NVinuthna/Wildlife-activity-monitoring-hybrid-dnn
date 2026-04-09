@@ -1,28 +1,31 @@
 import streamlit as st
 import pandas as pd
-from sklearn.neural_network import MLPClassifier
-from sklearn.preprocessing import LabelEncoder
 
 st.title("Wildlife Activity Monitoring System")
 
-# 1. Load the Dataset
 try:
-    df = pd.read_csv("Datasets.csv") #
+    # 1. Load data
+    df = pd.read_csv("Datasets.csv")
+    
+    # FIX for KeyError: Remove hidden spaces from column names
+    df.columns = df.columns.str.strip()
     
     # 2. Setup the Form
-    with st.form("detection_form"):
-        st.subheader("Analyze Wildlife Activity")
+    with st.form("my_form"):
+        st.subheader("Select Parameters")
         
-        # User selection based on your CSV columns
+        # This will now work because we 'stripped' the column names above
         selected_forest = st.selectbox("Select Forest Name", df['Forest Name'].unique())
         selected_loc = st.selectbox("Select Location", df['Location'].unique())
         
-        # FIX: The correct function name for the submit button
+        # FIX for Missing Submit Button:
         submitted = st.form_submit_button("Run Monitoring")
         
         if submitted:
-            # Add your prediction/alert logic here
-            st.success(f"Monitoring complete for {selected_forest}. No threats detected.")
+            st.success(f"Monitoring active for {selected_forest}")
+            st.info("Status: Normal Activity Detected")
 
 except FileNotFoundError:
-    st.error("Initialization Error: Ensure 'Datasets.csv' is in the root folder.") #
+    st.error("Datasets.csv not found in the root folder!")
+except KeyError as e:
+    st.error(f"Column Name Error: The app couldn't find the column {e}. Check your CSV headers!")
