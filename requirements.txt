@@ -2,3 +2,4 @@ django
 gunicorn
 pymysql
 pandas
+scikit-learn
