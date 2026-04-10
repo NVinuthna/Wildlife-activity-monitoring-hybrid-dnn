@@ -41,7 +41,7 @@ elif st.session_state.page == 'register':
 
 # --- PAGE 3: MONITORING (UPDATED: ANALYTICS ONLY) ---
 elif st.session_state.page == 'monitoring':
-    st.title("🐾 Wildlife Monitoring System")
+    st.title("🐾 Intelligent Wildlife Activity Monitoring and alert generation with hybrid DNN.")
     
     try:
         # Load the dataset
